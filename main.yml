@@ -1,0 +1,68 @@
+- hosts: localhost
+  pre_tasks:
+  - name: Update Apt
+    become: true
+    apt:
+      force_apt_get: true
+      update_cache: true
+      state: present
+    tags:
+      - core
+  tasks:
+    - name: Install Ansible requirements
+      become: true
+      apt:
+        name:
+          - python3
+          - python3-pip
+          - python3-venv
+          - python3-apt
+      tags:
+        - always
+
+    - name: Gather the package facts
+      package_facts:
+        manager: auto
+      tags:
+        - always
+
+    - name: Install json query language
+      pip:
+        name: jmespath
+      tags:
+        - cmake
+
+    - include_tasks:
+        file: tasks/dev.yml
+      tags:
+        - always
+
+    - include_tasks:
+        file: tasks/gh.yml
+      tags:
+        - always
+
+    - include_tasks:
+        file: tasks/zsh.yml
+      tags:
+        - always
+
+    - include_tasks:
+        file: tasks/cmake.yml
+      tags:
+        - always
+
+    - include_tasks:
+        file: tasks/nvim.yml
+      tags:
+        - always
+
+    - include_tasks:
+        file: tasks/apps.yml
+      tags:
+        - always
+
+    - include_tasks:
+        file: tasks/dot-files.yml
+      tags:
+        - always

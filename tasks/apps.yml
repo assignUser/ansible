@@ -1,0 +1,94 @@
+- name: Setup Slack
+  tags:
+    - core
+    - slack
+  when: "'slack-desktop' not in ansible_facts.packages"
+  block:
+
+    - name: Get Slack deb
+      get_url:
+        url: https://downloads.slack-edge.com/releases/linux/4.33.84/prod/x64/slack-desktop-4.33.84-amd64.deb
+        dest: /tmp/slack.deb
+
+    - name: Install Slack
+      become: true
+      apt:
+        deb: /tmp/slack.deb
+
+- name: setup firefox
+  tags:
+    - core
+    - ff
+  block:
+
+    - name: Add Firefox ppa
+      apt_repository:
+        repo: 'ppa:mozillateam/ppa'
+
+    - name: Disabel snap version
+      become: true
+      apt:
+        purge: true
+        name:
+          - snapd
+          - firefox
+        state: absent
+      when: "'snapd in ansible_facts.packages'"
+
+    - name: Hold snapd
+      become: true
+      dpkg_selections:
+        name: snapd
+        selection: hold
+
+    - name: Pin ppa
+      become: true
+      blockinfile:
+        dest:  /etc/apt/preferences.d/mozilla-firefox
+        block: |
+          Package: *
+          Pin: release o=LP-PPA-mozillateam
+          Pin-Priority: 100
+
+          Package: firefox*
+          Pin: release o=LP-PPA-mozillateam
+          Pin-Priority: 1001
+
+          Package: firefox*
+          Pin: release o=Ubuntu
+          Pin-Priority: -1
+        create: yes
+
+    - name: Install Firefox
+      become: true
+      apt:
+        name: firefox
+        update_cache: true
+        autoremove: true
+
+- name: Setup Obsidian
+  tags:
+    - core
+    - obsidian
+  when: "'obsidian' not in ansible_facts.packages"
+  block:
+
+    - name: Get Obsidian release info
+      uri:
+        url: https://api.github.com/repos/obsidianmd/obsidian-releases/releases/latest
+        return_content: true
+      register: obsidian_release
+
+    - name: Get Obsidian installer
+      vars:
+        asset_query: "json.assets[?ends_with(name, '_amd64.deb')].browser_download_url"
+      get_url:
+        url: "{{obsidian_release | community.general.json_query(asset_query) | join }}"
+        dest: "/tmp/obsidian.deb"
+
+    - name: Install Obsidian
+      become: true
+      apt:
+        deb: /tmp/obsidian.deb
+
+

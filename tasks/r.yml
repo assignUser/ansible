@@ -1,0 +1,31 @@
+- name: Setup R
+  tags:
+    - core
+    - r
+  block:
+
+    - name: Check if repository file exists
+      stat:
+        path: /etc/apt/sources.list.d/github-cli.list
+      register: r_repo_file
+
+    - name: Download R key
+      get_url:
+        url: https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc
+        dest: /usr/share/keyrings/marutter_pubkey.asc
+        mode: '0644'
+        force: false
+      register: r_asc_key
+
+    - name: Add R repository to sources.list
+      lineinfile:
+        dest: /etc/apt/sources.list.d/r.list
+        line: "deb [arch={{ ansible_architecture }} signed-by=/usr/share/keyrings/marutter_pubkey.asc] https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/"
+        create: yes
+      when: r_repo_file.stat.exists == false
+
+    - name: Install R
+      become: true
+      apt:
+        update_cache: true
+        name: r-base

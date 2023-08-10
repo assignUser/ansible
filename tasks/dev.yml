@@ -1,0 +1,74 @@
+- name: Setup Dev Stuff
+  tags:
+    - core
+    - dev
+  vars:
+    cmake_dir: "{{ lookup('env', 'HOME') }}/cmake"
+  block:
+
+    - name: Install Build Basics
+      become: true
+      apt:
+        name:
+          - build-essential
+          - curl
+          - ccache
+          - gettext
+          - libpthread-stubs0-dev
+          - libssl-dev
+          - lua5.4
+          - ninja-build
+          - pkg-config
+          - unzip
+      tags:
+        - cmake
+        - nvim
+
+    - name: Install Misc Tools
+      become: true
+      apt:
+        name:
+          - flameshot
+          - fzf
+          - htop
+          - ripgrep
+          - stow
+          - tmux
+          - tldr
+          - nextcloud-desktop
+      tags:
+        - cmake
+        - nvim
+
+    - name: Setup R
+      include_tasks: r.yml
+      tags:
+        - r
+
+    - name: Install pipx
+      pip:
+        name: pipx
+
+    - name: Install lazygit
+      community.general.pipx:
+        name: lazygit
+
+    - name: Install poetry
+      community.general.pipx:
+        name: poetry
+
+    - name: Check if Mamba is installed
+      command: mamba -V
+      register: mamba_inst
+      ignore_errors: true
+
+    - name: Get mambaforge installer
+      get_url:
+        url: https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh
+        dest: /tmp/mamba_install.sh
+      when: mamba_inst.rc != 0
+
+    - name: Install mambaforge
+      shell: bash /tmp/mamba_install.sh -bu
+      when: mamba_inst.rc != 0
+

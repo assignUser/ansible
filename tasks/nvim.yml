@@ -1,0 +1,29 @@
+- name: Setup NeoVim
+  tags:
+    - core
+    - nvim
+  vars:
+    nvim_dir: "{{ lookup('env', 'HOME') }}/neovim"
+  block:
+
+    - name: Get neovim release info
+      uri:
+        url: https://api.github.com/repos/neovim/neovim/releases/latest
+        return_content: true
+      register: nvim_release
+
+    - name: Checkout latest release
+      git:
+        repo: 'https://github.com/neovim/neovim.git'
+        dest: "{{ nvim_dir }}"
+        version: "{{ nvim_release.json.tag_name }}"
+        force: true
+      register: nvim_repo
+
+    - name: Build NeoVim
+      become: true
+      command:
+        chdir: "{{ nvim_dir }}"
+        cmd: make install
+      when: nvim_repo.changed
+

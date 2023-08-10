@@ -1,0 +1,33 @@
+- name: Setup latest CMake
+  tags:
+    - cmake
+    - dev
+    - core
+  vars:
+    cmake_dir: "{{ lookup('env', 'HOME') }}/cmake"
+  block:
+
+    - name: Get CMake release info
+      uri:
+        url: https://api.github.com/repos/Kitware/CMake/releases/latest
+        return_content: true
+      register: cmake_release
+
+    - name: Check installed CMake version
+      command: cmake --version | head -n 1 | awk '{print $3}'
+      register: cmake_version
+      ignore_errors: true
+
+    - name: Get CMake installer
+      vars:
+        asset_query: "json.assets[?ends_with(name, '-linux-x86_64.sh')].browser_download_url"
+      get_url:
+        url: "{{cmake_release | community.general.json_query(asset_query) | join }}"
+        dest: "/tmp/cmake_install"
+        mode: "0755"
+      when: "cmake_version.rc != 0 or cmake_version.stdout not in cmake_release.json.tag_name"
+      register: cmake_installer
+
+    - name: Install CMake
+      command: /tmp/cmake_install --skip-license --prefix=/usr/local/
+      when: cmake_installer.changed

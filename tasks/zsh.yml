@@ -1,0 +1,37 @@
+- name: Setup ZSH
+  tags:
+    - core
+    - zsh
+  block:
+    - name: Install ZSH
+      become: true
+      apt: name=zsh
+
+    - name: Change shell to zsh
+      user:
+        name: "{{ ansible_user_id }}"
+        shell: /usr/bin/zsh
+
+    - name: Check of oh-my-zsh is installed
+      stat:
+        path:  "{{ lookup('env', 'HOME') }}/.oh-my-zsh"
+      register: omz
+
+    - name: Get oh-my-zsh installer
+      get_url:
+        url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+        dest: /tmp/omz_install
+        mode: "0755"
+      when: not omz.stat.exists
+
+    - name: Install oh-my-zsh
+      command: /tmp/omz_install
+      when: not omz.stat.exists
+
+    - name: Install zsh-autosuggestions
+      git:
+        repo: "https://github.com/zsh-users/zsh-autosuggestions.git"
+        dest: "{{ lookup('env', 'HOME') }}/.oh-my-zsh/plugins/zsh-autosuggestions"
+        update: false
+
+
