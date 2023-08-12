@@ -31,6 +31,7 @@
           - flameshot
           - fzf
           - htop
+          - konsole
           - ripgrep
           - stow
           - tmux
