@@ -33,6 +33,11 @@
         - cmake
 
     - include_tasks:
+        file: tasks/fonts.yml
+      tags:
+        - always
+
+    - include_tasks:
         file: tasks/dev.yml
       tags:
         - always

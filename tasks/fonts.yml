@@ -1,0 +1,34 @@
+- name: Setup fonts 
+  tags:
+    - core
+    - fonts
+  block:
+
+    - name: Ensure .fonts exists
+      file:
+        path: "{{ lookup('env', 'HOME') }}/.fonts"
+        state: directory
+
+    - name: Get Fira Code Nerd Font
+      get_url:
+        url: https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/FiraCode.zip
+        dest: /tmp/fira.zip
+
+    - name: Extract Fira
+      unarchive:
+        keep_newer: true
+        src: /tmp/fira.zip
+        include: '*.ttf'
+        dest: "{{lookup('env', 'HOME')}}/.fonts"
+
+    - name: Get Comic Shanns 
+      get_url:
+        url:  https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/ComicShannsMono.zip
+        dest: /tmp/comic.zip
+
+    - name: Extract Comic
+      unarchive:
+        keep_newer: true
+        src: /tmp/comic.zip
+        include: '*.otf'
+        dest: "{{lookup('env', 'HOME')}}/.fonts"
