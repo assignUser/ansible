@@ -15,7 +15,8 @@
       apt:
         deb: /tmp/slack.deb
 
-- name: setup firefox
+- name: Setup Firefox
+  become: true
   tags:
     - core
     - ff
@@ -26,7 +27,6 @@
         repo: 'ppa:mozillateam/ppa'
 
     - name: Disabel snap version
-      become: true
       apt:
         purge: true
         name:
@@ -36,13 +36,11 @@
       when: "'snapd in ansible_facts.packages'"
 
     - name: Hold snapd
-      become: true
       dpkg_selections:
         name: snapd
         selection: hold
 
     - name: Pin ppa
-      become: true
       blockinfile:
         dest:  /etc/apt/preferences.d/mozilla-firefox
         block: |
@@ -60,7 +58,6 @@
         create: yes
 
     - name: Install Firefox
-      become: true
       apt:
         name: firefox
         update_cache: true

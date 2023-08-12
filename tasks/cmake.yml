@@ -29,5 +29,6 @@
       register: cmake_installer
 
     - name: Install CMake
+      become: true
       command: /tmp/cmake_install --skip-license --prefix=/usr/local/
       when: cmake_installer.changed
