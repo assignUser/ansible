@@ -41,14 +41,16 @@
         - cmake
         - nvim
 
+    - name: Install pipx
+      pip:
+        name: pipx
+      tags:
+        - r
+
     - name: Setup R
       include_tasks: r.yml
       tags:
         - r
-
-    - name: Install pipx
-      pip:
-        name: pipx
 
     - name: Install lazygit
       community.general.pipx:

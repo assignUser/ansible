@@ -29,3 +29,8 @@
       apt:
         update_cache: true
         name: r-base
+
+    - name: Install Radian
+      become: false
+      community.general.pipx:
+        name: radian
