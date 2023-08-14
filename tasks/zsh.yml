@@ -28,21 +28,3 @@
     - name: Install oh-my-zsh
       command: /tmp/omz_install
       when: not omz.stat.exists
-
-    - name: Install zsh-autosuggestions
-      git:
-        repo: "https://github.com/zsh-users/zsh-autosuggestions.git"
-        dest: "{{ lookup('env', 'HOME') }}/.oh-my-zsh/plugins/zsh-autosuggestions"
-        update: false
-
-    - name: Install powerlevel10k
-      git:
-        repo: "https://github.com/romkatv/powerlevel10k.git"
-        dest: "{{ lookup('env', 'HOME') }}/.oh-my-zsh/custom/themes/powerlevel10k"
-        update: false
-
-    - name: Install zsh-syntax-highlightning
-      git:
-        repo: "https://github.com/zsh-users/zsh-syntax-highlighting.git"
-        dest: "{{ lookup('env', 'HOME') }}/.oh-my-zsh/plugins/zsh-syntax-highlighting"
-        update: false
