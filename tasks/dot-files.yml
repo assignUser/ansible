@@ -6,7 +6,7 @@
   block:
 
     - name: Clone dot-files
-      command: gh repo clone dot-files {{ dot_dir }}
+      command: gh repo clone dot-files {{ dot_dir }} -- --recurse-submodules
 
     - name: Stow dot-files
       shell:
@@ -15,4 +15,3 @@
 
     - name: mamba init
       shell: zsh /root/mambaforge/bin/conda init
-
