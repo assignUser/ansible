@@ -14,4 +14,4 @@
         chdir: "{{ dot_dir }}"
 
     - name: mamba init
-      shell: zsh /root/mambaforge/bin/conda init
+      shell: "zsh {{ lookup('env', 'HOME') }}/mambaforge/bin/conda init zsh"
