@@ -31,6 +31,7 @@
         name: jmespath
       tags:
         - cmake
+        - core
 
     - include_tasks:
         file: tasks/fonts.yml

@@ -6,6 +6,23 @@
     nvim_dir: "{{ lookup('env', 'HOME') }}/neovim"
   block:
 
+    # Required for a number of mason pkgs
+    - name: Get nodejs LTS installer
+      when: "'nodjs' not in ansible_facts.packages"
+      get_url:
+        url: https://deb.nodesource.com/setup_18.x
+        dest: /tmp/node_install
+        mode: "0755"
+
+    - name: Run nodejs installer
+      when: "'nodjs' not in ansible_facts.packages"
+      command: /tmp/node_install
+    
+    - name: Install nodejs
+      when: "'nodjs' not in ansible_facts.packages"
+      apt:
+        name: nodejs
+
     - name: Get neovim release info
       uri:
         url: https://api.github.com/repos/neovim/neovim/releases/latest
