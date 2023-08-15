@@ -21,7 +21,7 @@
     - name: Add GitHub CLI repository to sources.list
       lineinfile:
         dest: /etc/apt/sources.list.d/github-cli.list
-        line: "deb [arch={{ ansible_architecture }} signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main"
+        line: "deb [signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main"
         create: yes
       when: repo_file.stat.exists == false
 
