@@ -1,0 +1,43 @@
+- name: Setup LazyGit 
+  tags:
+    - core
+    - lazygit
+  block:
+
+    - name: Get lazygit version
+      uri:
+        url: https://api.github.com/repos/jesseduffield/lazygit/releases/latest
+        return_content: true
+      register: lazygit_release
+
+    - name: Check installed lazygit version
+      shell: |
+        set -e -o pipefail
+        lazygit --version | sed -r 's/.*version=([0-9\.]+),.*/\1/'
+      register: lazygit_version
+      ignore_errors: true
+      
+    - name: Get lazygit installer
+      vars:
+        asset_query: "json.assets[?ends_with(name, '_Linux_x86_64.tar.gz')].browser_download_url"
+      get_url:
+        url: "{{lazygit_release | community.general.json_query(asset_query) | join }}"
+        dest: "/tmp/lazygit{{ lazygit_release.json.tag_name }}.tar.gz"
+        mode: "0755"
+      when: "lazygit_version.rc != 0 or lazygit_version.stdout == '' or lazygit_version.stdout not in lazygit_release.json.tag_name"
+      register: lazygit_installer
+
+    - name: Ensure dir
+      file:
+        path: "/tmp/lazygit{{ lazygit_release.json.tag_name }}"
+        state: directory
+
+    - name: Extract lazygit
+      unarchive:
+        src: "/tmp/lazygit{{  lazygit_release.json.tag_name }}.tar.gz"
+        dest: "/tmp/lazygit{{ lazygit_release.json.tag_name }}"
+
+    - name: Install LazyGit
+      become: true
+      command: install /tmp/lazygit{{ lazygit_release.json.tag_name }}/lazygit /usr/local/bin
+      when: lazygit_installer.changed

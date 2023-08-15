@@ -52,10 +52,6 @@
       tags:
         - r
 
-    - name: Install lazygit
-      community.general.pipx:
-        name: lazygit
-
     - name: Install poetry
       community.general.pipx:
         name: poetry
@@ -69,9 +65,14 @@
       get_url:
         url: https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh
         dest: /tmp/mamba_install.sh
+        mode: "0755"
       when: mamba_inst.rc != 0
 
     - name: Install mambaforge
       shell: bash /tmp/mamba_install.sh -bu
       when: mamba_inst.rc != 0
 
+    - name: Setup LazyGit
+      include_tasks: lazygit.yml
+      tags:
+        - lazygit
